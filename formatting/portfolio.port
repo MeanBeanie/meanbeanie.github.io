@@ -1,0 +1,21 @@
+% Title | Ishaan Mehta | My projects and stuff
+
+"home" > (index)
+"projects" > (projects)
+"github" > {https://github.com/MeanBeanie}
+"TODO! add more links" > (index)
+
+[index]
+# "$ whoami"
+"I'm a sixteen year old software developer. I've been programming since I was 9 years old and I've since fallen down the computer engineering rabbit hole, attempting every project I can think of and learning whatever I need to along the way."
+"This is the corner of the internet where I talk about my projects and the process of making them, highlighting the lows, highs, and everything in between. This site will mostly likely contain projects I think are interesting or educational enough that I want to make note of them, as well as any other neat or fun things I feel deserve a mention."
+"TODO!! add like a couple highlighted projects"
+
+[projects]
+# "$ ls ~/projects"
+-dash-
+## "Generating static sites from plaintext formatting files" > (portfolio_generator)
+"Creating websites is often boring, and dealing with html is rather awful because of all the angled braces, so I created a static website generator that uses easy to type plaintext formatting files to generate the appropriate html"
+-dash-
+
+.formatting/portgen.port
