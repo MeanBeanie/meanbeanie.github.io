@@ -132,7 +132,9 @@ boot_msg: db "Hello, World!", 0
 		<p></p>
 		<p class="text_element_p">Et voila, we've gone from 16 bit real mode all the way to 64 bit long mode, with a detour through the 32 bit land. Now what you may ask me? Well we must load a kernel and start getting our operating system setup. But how do we do that you ask? Well I may know now, but I didn't when I was writing this code, and so we must say goodbye to all our work on this very nice bootloader and switch to something made by people who know what they're doing. My choice for this was Limine, mostly cause it seemed pretty cool and since this is just a toy project it isn't super important which bootloader I pick</p>
 		<p></p>
-		<h3 class="text_element_h">Now that we're using a properly made bootloader, we no longer have to rely on the VGA tech from the dark ages. But first things first we have to setup some basic kernel stuff to get ourselves off the ground and begin our long flight to Operating-Systemhood.</h3>
+		<h3 class="text_element_h">Part 2: Loading a kernel and getting everything setup once again, a less dramatic retelling</h3>
+		<p></p>
+		<p class="text_element_p">Now that we're using a properly made bootloader, we no longer have to rely on the VGA tech from the dark ages. But first things first we have to setup some basic kernel stuff to get ourselves off the ground and begin our long flight to Operating-Systemhood.</p>
 		<p></p>
 		<p class="text_element_p">What? Assembly is evolving! (doodly toot toot or whatever the noise is). Congratulations! Your Assembly has evolved into C!</p>
 		<p></p>
@@ -191,7 +193,9 @@ void kernel_main(void){
 		<p class="text_element_p">And now we're done right? We can draw things to the screen, and thats all an OS really needs to do. Unless, y'know, you want to get keyboard input, or run more than one program at a time(this counts the kernel as a program), or make sure the user doesn't have the power of a god over the entire computer. So away we go again, setting things up for the 3rd time now but getting real close to almost being at the starting line of making the OS work correctly.</p>
 		<p></p>
 		<hr class="hori-dash">
-		<a class="text_element_h" href="https://github.com/lukearend/x86-bootloader"><h3>1. An example x86 bootloader</h3></a>
+		<h3 class="text_element_h">Sources!!</h3>
+		<p></p>
+		<a class="text_element_p" href="https://github.com/lukearend/x86-bootloader">1. An example x86 bootloader</a>
 		<p></p>
 		<a class="text_element_p" href="https://github.com/jessewashburn/nasm-bootloader">2. Another example x86 bootloader</a>
 		<p></p>

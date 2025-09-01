@@ -107,7 +107,7 @@ boot_msg: db "Hello, World!", 0
 
 "Et voila, we've gone from 16 bit real mode all the way to 64 bit long mode, with a detour through the 32 bit land. Now what you may ask me? Well we must load a kernel and start getting our operating system setup. But how do we do that you ask? Well I may know now, but I didn't when I was writing this code, and so we must say goodbye to all our work on this very nice bootloader and switch to something made by people who know what they're doing. My choice for this was Limine, mostly cause it seemed pretty cool and since this is just a toy project it isn't super important which bootloader I pick"
 
-## Part 2: Loading a kernel and getting everything setup once again, a less dramatic retelling
+## "Part 2: Loading a kernel and getting everything setup once again, a less dramatic retelling"
 
 "Now that we're using a properly made bootloader, we no longer have to rely on the VGA tech from the dark ages. But first things first we have to setup some basic kernel stuff to get ourselves off the ground and begin our long flight to Operating-Systemhood."
 
@@ -162,7 +162,7 @@ void kernel_main(void){
 
 -dash-
 
-## Sources!!
+## "Sources!!"
 
 "1. An example x86 bootloader" > {https://github.com/lukearend/x86-bootloader}
 "2. Another example x86 bootloader" > {https://github.com/jessewashburn/nasm-bootloader}
