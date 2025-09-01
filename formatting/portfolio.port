@@ -1,4 +1,4 @@
-% Title | Ishaan Mehta | My projects and stuff
+% Ishaan Mehta's Page | Ishaan Mehta | My projects and stuff
 
 "home" > (index)
 "projects" > (projects)
@@ -17,5 +17,10 @@
 ## "Generating static sites from plaintext formatting files" > (portfolio_generator)
 "Creating websites is often boring, and dealing with html is rather awful because of all the angled braces, so I created a static website generator that uses easy to type plaintext formatting files to generate the appropriate html"
 -dash-
+## "Baby's First Operating System" > (bfos)
+"Operating systems are cool, why not figure out how to create one of my own?"
+-dash-
 
 .formatting/portgen.port
+
+.formatting/bfos.port

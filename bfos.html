@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="author" content="Ishaan Mehta ">
+		<meta name="description" content="My projects and stuff">
+		<link rel="stylesheet" href="style.css">
+		<title>Ishaan Mehta's Page </title>
+	</head>
+	<body>
+	<div class="global_box">
+	<div style="display: inline;">
+		<p>Ishaan Mehta </p>		<nav style="text-align:center;">
+		<a class="text_element_p" href="index.html">[home]</a>
+		<a class="text_element_p" href="projects.html">[projects]</a>
+		<a class="text_element_p" href="https://github.com/MeanBeanie">[github]</a>
+		<a class="text_element_p" href="index.html">[TODO! add more links]</a>
+		</nav>
+	</div>
+		<hr>
+		<a class="text_element_h" href="https://github.com/MeanBeanie/bfos"><h2>$ cat ~/projects/os</h2></a>
+		<p></p>
+		<p class="text_element_p">Forewarning I am not experienced at any of this, and this entire project is my attempt at making something. The explanations are my understanding of whats going on and may be riddled with errors.</p>
+		<p></p>
+		<p class="text_element_p">Operating systems are real neat. They turn your fancy number machine into a world of buttons and text, and it's all done through mysterious magic written in the dark ages before civilization. Or so it seems at least. I think making an OS would be neat, not because I would want to be able to daily-drive my own custom system or anything, but because they seem like a good way to learn what an OS actually does. Plus if they really are written using magic, then I get to be a wizard so thats cool.</p>
+		<p></p>
+		<h3 class="text_element_h">Part 1: 16 bit to 64 bit, a dramatic retelling</h3>
+		<p></p>
+		<p class="text_element_p">Making something that boots is really easy, like suspiciously so. Its not a lot of code, just a quick assembly file and some special numbers cause computer scientists can't enough of their special numbers</p>
+		<p></p>
+		<xmp class="code">; boot.nasm
+1. [BITS 16] ; booting into real mode means 16 bit processing
+2. .global _start
+3. 
+4. _start:
+5.   jmp _start
+6. 
+7. times 510-($-$$) db 0
+8. dw 0xAA55</xmp>
+		<p></p>
+		<p class="text_element_p">Thats it! Like no joke if you compile that using nasm and output to a binary file, you will get something that will boot on x86_64 devices. Its not much, it starts and immediately hangs until the heat death of the universe, or CPU whatever happens first, but it boots.</p>
+		<p></p>
+		<p class="text_element_p">But Ishaan, you ask, what the hell does any of that mean? Well dear reader its really simple (smile now cause it won't be anywhere near simple later). The first line just tells the computer that we're using the 16 bit mode instead of the full 64 bits. We do this because when the CPU starts up, it likes to do that in 16 bit 'real mode'. Why that happens is beyond me, but it is what it is and we must adapt to the choices made by the ancient ones of the early 2000s. Anyways after that the second line make _start a global label, so it can be accessed from anywhere, we didn't have to use _start but its like standard convention and who am I to mess with that. Then we create our infinite loop, which if you can read english should make sense (not meant as a dig to those who can't), since it defines _start as a label on line 4, then jumps (it doesn't say jump but its like 1 letter removed and thats close enough) back to the label _start we defined on line 4. After that it pads out the file with 0s so its exactly 510 bits long, then it slaps 0x55AA into the 511th and 512th bit creating our perfect 512 bit bootable file. What is 0x55AA and why is it reversed in the code you ask? Well the latter question is easyish, it just has to do with endianess.</p>
+		<p></p>
+		<p class="text_element_p">And so it begins, the first stupid choice made by a bunch of nerds in the 90s about how computers should do things. When computer people refer to endianness, they just mean the order in which data is shoved onto your storage device. Big Endian is the form we usually think in, it puts the littlest end of the number in first, then the second littlest, then the third, etc etc until you've put your whole number in. It looks something like this:</p>
+		<p></p>
+		<xmp class="code">0x12345678 gets put in the order
+
+| 0x12 | 0x34 | 0x56 | 0x78 |</xmp>
+		<p></p>
+		<p class="text_element_p">So nice and so neat, but some of the nerds decided that was lame (they had decent reasons, go google them its actually rather cool) and ended up using Little Endian. That's where the opposite happens, the biggest end of a number is shoved in first, then the second biggest, etc etc you get the vibes. That looks something like this:</p>
+		<p></p>
+		<xmp class="code">0x12345678 gets put in the order
+
+| 0x78 | 0x56 | 0x34 | 0x12 |</xmp>
+		<p></p>
+		<p class="text_element_p">Nice and confusing right? Anyways the reason this matters is because the x86 architecture is Little Endian, which means data is shoved in backwards to the way you would write it. All that to say that's why we put 0xAA55 on line 8 instead of 0x55AA, because the cimputer thinks of the data in a weird way and we must work with it. As to why we specifically wanted to put 0x55AA into the 511th and 512th bit? Thats just a magic number. Its not random because it was chosen due to its alternating form in binary (101010...) making it very easy to see and less likely to be generated by whatever garbage data is in storage so the computer doesn't get confused.</p>
+		<p></p>
+		<p class="text_element_p">For funsies I wanted to slide a little 'Hello, World!' message in right after booting, so I set up a quick print16 utility:</p>
+		<p></p>
+		<xmp class="code">; boot.nasm
+; ... the start stuff
+1.    mov si, boot_msg
+2.    call print16
+3.    hlt
+
+4.  print16:
+5.    lodsb
+6.    test al,al
+7.    jz .done
+8.    mov ah, 0x0E
+9.    int 0x10
+10.   jmp print16
+11. .done:
+12.   ret
+
+boot_msg: db "Hello, World!", 0
+
+; ... the rest of the stuff</xmp>
+		<p></p>
+		<p class="text_element_p">Basically all this does is dump a bunch of bytes into the console output until we hit a 0 (also known as a null-terminator) after which we return to where we were. The actual function is pretty simple: it steps through the string stored in si, checks if the value is 0 and if it is finishes the printing, otherwise it just drops the ascii encoded character into the console output and loops to check the next character. The character gets stored into the al register, but the real neat thing is setting the ah register to 0x0E. This makes the ah represent the teletype function, which if you can't tell types stuff. Line 9 runs the function in the ah registers (which we know is teletype) from interrupt 0x10. Combining all this gets us a nice 'Hello, World!' out to the console.</p>
+		<p></p>
+		<p class="text_element_p">Back to the serious stuff, we need to move on from 16 bit mode because this isn't the old days and 64 bit computing is where all the fun is. There's a few different roads we could take to get to the goal of 64 bits, but I chose to take the more scenic one that drives us through 32 bit stuff. So away we go making the jump to 32 bit power and entering whats known as protected mode, called that because it allows for virtual memory addresses and lets us enforce some nice memory and IO protection measures to keep the OS nice and safe.</p>
+		<p></p>
+		<p class="text_element_p">To get to 32 bit stuff, we need to go set up a Global Descriptor Table (or GDT). A GDT manages how memory is accessed and how its protected, it lets you mark areas as executable or writable and all that neat stuff. It's split into two important bits, the code segment and the data segment. I'll be completely honest, no clue how most of this stuff works well enough to explain it or write about it in any capacity, but there are links at the bottom of the page to learn more and see where I got help/guidance from.</p>
+		<p></p>
+		<p class="text_element_p">After setting up the GDT with a kernel level code and data segment, I had successfully entered 32 bit protected mode. To make the final jump to 64 bit long mode, there was one main thing I needed to do (Technically 64 bit mode needs another GDT but I don't want to sound repetitive), setting up paging. Paging, you ask, whatever could that mean? Is it mayhaps, when you use 'pages' of memory to protect certain segments and allow other segments to be modified by the user? And thats exactly it. There's a couple different types of paging we need to setup: PAE (Physical Address Extension) which allows for virtualized memory addresses, PML4 (Page Map Level 4) which lets us address a larger amount of RAM, and the whole PML4 -> PDP -> PD chain.</p>
+		<p></p>
+		<p class="text_element_p">Quick Side Note: Virtual memory addresses are just us lying to the computer. To oversimplify a bit, lets say that address 0x12345 is the starting address for a process, but we don't want to have to make the process try to figure out where things are relative to whatever address it starts at because that starting address changes a lot, so we tell the process that 0x12345 is actually 0x00000 allowing the process to just have to know the locations of everything relative to 0x00000.</p>
+		<p></p>
+		<p class="text_element_p">Anyways setting up paging is pretty simple, just define where each page is located in the assembly file like so:</p>
+		<p></p>
+		<xmp class="code">; boot.nasm
+; ... the previous stuff
+1. pml4_table equ 0x8000
+2. pdpt       equ 0x9000
+3. pd_table   equ 0xA000
+; ... the rest of the stuff</xmp>
+		<p></p>
+		<p class="text_element_p">After that you need to load all the initial data into the pages so we can use them properly, which means establishing entry points for PML4 pointing to the PDP, then for the PDP entry points to point to the PD. Then just fill the PD with its identity map (that just marks it as present and writeable, then sets up the page size. And once you finish that we can make another jump off to the final land of 64 bit long mode.</p>
+		<p></p>
+		<p class="text_element_p">After that harrowing journey we finally arrive at Mount Doom, ready to take on the world of whatever comes after creating a bootloader. I threw together some basic code that sets up a VGA mode and clears the screen and we're bascially set:</p>
+		<p></p>
+		<xmp class="code">; boot.nasm
+; ... you just read everything up here
+
+1.  [BITS 64] ; yipee we made it
+2.  
+3.  long_mode_start:
+4.    mov ax, GDT64_DATA ; gotta setup the registers for 64 bit mode
+5.  
+6.    mov ds, ax ; data segment register
+7.    mov ss, ax ; stack segment register
+8.    mov es, ax ; extra general purpose
+9.    mov fs, ax ; extra general purpose
+10.   mov gs, ax ; extra general purpose
+11. 
+12.   mov rdi, 0xB8000 ; load rdi with the address of the VGA
+13.   ; clear the screen
+14.   mov rax, 0
+15.   mov rcx, VGA_TEXT_BUFFER_SIZE / 8
+16. 
+17.   ; freeze cause theres nothing else to do
+18.   rep stosq
+19.   hlt
+20. 
+21. COLS equ 80
+22. ROWS equ 25
+23. BYTES_PER_CHAR equ 2
+24. VGA_TEXT_BUFFER_SIZE equ BYTES_PER_CHAR * COLS * ROWS
+; ... this is all the definitions and GDTs and stuff</xmp>
+		<p></p>
+		<p class="text_element_p">Et voila, we've gone from 16 bit real mode all the way to 64 bit long mode, with a detour through the 32 bit land. Now what you may ask me? Well we must load a kernel and start getting our operating system setup. But how do we do that you ask? Well I may know now, but I didn't when I was writing this code, and so we must say goodbye to all our work on this very nice bootloader and switch to something made by people who know what they're doing. My choice for this was Limine, mostly cause it seemed pretty cool and since this is just a toy project it isn't super important which bootloader I pick</p>
+		<p></p>
+		<h3 class="text_element_h">Now that we're using a properly made bootloader, we no longer have to rely on the VGA tech from the dark ages. But first things first we have to setup some basic kernel stuff to get ourselves off the ground and begin our long flight to Operating-Systemhood.</h3>
+		<p></p>
+		<p class="text_element_p">What? Assembly is evolving! (doodly toot toot or whatever the noise is). Congratulations! Your Assembly has evolved into C!</p>
+		<p></p>
+		<p class="text_element_p">Thats right folks! We now finally can use C to code our operating system, which gives us a whole host of new functions. Or so I thought. You see usually when I code in C, I'm coding on an operating system (wow shocking I know), and those operating systems have something known as a C Standard Library (wow also shocking, shut up this is relevant). But since we're coding an operating system, we have no standard library, nor anything of substance. So we instead have to rely on base C, meaning life just got a whole lot more compilcated. For now however, thats not our concern.</p>
+		<p></p>
+		<p class="text_element_p">To get started I included the limine.h file from link 12, and then started getting my kernel made. Since we aren't using the VGA Text Mode anymore we instead have to use a framebuffer, which is just a large array of RGB values that represent what's currently on the screen. Luckily we don't have to make this from scratch, since we're using an actually good bootloader and Limine provides one to us, so we can get access to it like so:</p>
+		<p></p>
+		<xmp class="code">// kernel.c
+#include "limine.h"
+// limine setup stuff
+
+__attribute__((used, section(".limine_requests")))
+static volatile sturct limine_framebuffer_request framebuffer_request = {
+  .id = LIMINE_FRAMEBUFFER_REQUEST,
+  .revision = 0
+};
+// the rest of the stuff (we'll get to it in a moment)</xmp>
+		<p></p>
+		<p class="text_element_p">And if all goes well, we should be able to check the response to this request later on and get access to our lovely framebuffer. We do need set some things up before we get there though, since we're compiling our C code before writing it to our operating system and our compiler (gcc, but clang should expect this as well) expects that we declare a couple of memory functions as well as one function that will be incredibly useful through development:</p>
+		<p></p>
+		<xmp class="code">// kernel.c
+// ...
+
+// lets us copy data from the source pointer to the destination pointer
+void* memcpy(void *restrict dest, const void* restrict src, size_t n);
+// sets N bytes of S to C
+void* memset(void* s, int c, size_t n);
+// moves the data from source to destination
+void* memmove(void* dest, const void* src, size_t n);
+// compares two sets of data and returns whether or not they're the same
+int memcmp(const void* s1, const void* s2, size_t n);
+
+// halt and catch fire, freezes all execution
+void hcf(void);
+
+// ...
+</xmp>
+		<p></p>
+		<p class="text_element_p">Now that we have the boilerplate stuff finished, we can get to the fun stuff. We need an entry point for the kernel, somewhere that the bootloader can hand off execution and where the kernel can initialize everything and start doing its kernely job. In that entry point function, we can start doing checks of whether or not everything has loaded and then start drawing stuff to the screen. First things first, we have to make sure that our bootloader is the correct version and will actually do what we expect of it, which is just an if statement that calls our fun halt and catch fire (hcf) function if it fails. Then we validate the framebuffers existence by checking whether or not our request for it succeeded, then checking if the request actually found any framebuffers for us to play with. And after all that, we can write our bytes to the framebuffer and get the screen to display something cool. But how do we do that, y'all ask. Well its really quite simple, you just get the (x,y) coordinate of where you want to draw something, then you slap one of those hex color codes into it:</p>
+		<p></p>
+		<xmp class="code">// kernel.c
+// notice how the kernel_main returns nothing, thats because exit codes are meaningless if the OS crashes
+void kernel_main(void){
+  // do all the cool checks and stuff to make sure things are working
+
+  for(size_t y = 0; y < 100; y++){
+    for(size_t x = 0; x < 100; x++){
+      volatile uint32_t* fb_ptr = framebuffer->address;
+      fb_ptr[y*(framebuffer->pitch/4) + x] = 0xFFFFFF;
+    }
+  }
+}</xmp>
+		<p></p>
+		<p class="text_element_p">A couple things to note: the x and y values are of type size_t and not int because they're expected never to go negative since that would take us out of bounds of the framebuffer, the fb_ptr is volatile since other things may mess with the framebuffer later and we need to tell the compiler that thats okay, and the y is multipled by a modified framebuffer->pitch as that lets us index the rows of the framebuffer properly and treat each y increment as a full row being skipped. But after all of that, we've drawn a diagonal line down across the screen (or at least across the first 100 pixels of the screen).</p>
+		<p></p>
+		<p class="text_element_p">And now we're done right? We can draw things to the screen, and thats all an OS really needs to do. Unless, y'know, you want to get keyboard input, or run more than one program at a time(this counts the kernel as a program), or make sure the user doesn't have the power of a god over the entire computer. So away we go again, setting things up for the 3rd time now but getting real close to almost being at the starting line of making the OS work correctly.</p>
+		<p></p>
+		<hr class="hori-dash">
+		<a class="text_element_h" href="https://github.com/lukearend/x86-bootloader"><h3>1. An example x86 bootloader</h3></a>
+		<p></p>
+		<a class="text_element_p" href="https://github.com/jessewashburn/nasm-bootloader">2. Another example x86 bootloader</a>
+		<p></p>
+		<a class="text_element_p" href="https://en.wikipedia.org/wiki/Global_Descriptor_Table">3. GDT Wikipedia Page</a>
+		<p></p>
+		<a class="text_element_p" href="https://medium.com/@g33konaut/writing-an-x86-hello-world-boot-loader-with-assembly-3e4c5bdd96cf">4. A helpful guide that got me started</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/Setting_Up_Long_Mode#Entering_Long_Mode">5. OSDev Wiki Long Mode</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/Limine_Bare_Bones">6. Super basic example using Limine</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/Creating_an_Operating_System">7. OSDev Wiki Roadmap</a>
+		<p></p>
+		<a class="text_element_p" href="https://operating-system-in-1000-lines.vercel.app/en/">8. Another helpful guide</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/8259_PIC">9. OSDev Wiki PIC</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/GDT_Tutorial">10. OSDev Wiki GDT Setup Guide</a>
+		<p></p>
+		<a class="text_element_p" href="https://wiki.osdev.org/Task_State_Segment">11. OSDev Wiki TSS</a>
+		<p></p>
+		<a class="text_element_p" href="https://codeberg.org/Limine/limine-protocol/raw/branch/trunk/include/limine.h">12. Limine Header File</a>
+		<p></p>
+	</div>
+	</body>
+</html>

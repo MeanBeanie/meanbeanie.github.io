@@ -1,5 +1,5 @@
 [portfolio_generator]
-# "~/projects/portgen" > {https://github.com/MeanBeanie/portfolio-generator}
+# "$ cat ~/projects/portgen" > {https://github.com/MeanBeanie/portfolio-generator}
 
 "Writing HTML has always been my personal nightmare. Remembering to close all the elements and having to constantly open and close angled brackets is one of my pet peeves, and so when I decided to make a portfolio/project website I knew I had to do something different."
 
