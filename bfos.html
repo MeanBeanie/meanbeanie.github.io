@@ -170,8 +170,7 @@ int memcmp(const void* s1, const void* s2, size_t n);
 // halt and catch fire, freezes all execution
 void hcf(void);
 
-// ...
-</xmp>
+// ...</xmp>
 		<p></p>
 		<p class="text_element_p">Now that we have the boilerplate stuff finished, we can get to the fun stuff. We need an entry point for the kernel, somewhere that the bootloader can hand off execution and where the kernel can initialize everything and start doing its kernely job. In that entry point function, we can start doing checks of whether or not everything has loaded and then start drawing stuff to the screen. First things first, we have to make sure that our bootloader is the correct version and will actually do what we expect of it, which is just an if statement that calls our fun halt and catch fire (hcf) function if it fails. Then we validate the framebuffers existence by checking whether or not our request for it succeeded, then checking if the request actually found any framebuffers for us to play with. And after all that, we can write our bytes to the framebuffer and get the screen to display something cool. But how do we do that, y'all ask. Well its really quite simple, you just get the (x,y) coordinate of where you want to draw something, then you slap one of those hex color codes into it:</p>
 		<p></p>
@@ -192,6 +191,147 @@ void kernel_main(void){
 		<p></p>
 		<p class="text_element_p">And now we're done right? We can draw things to the screen, and thats all an OS really needs to do. Unless, y'know, you want to get keyboard input, or run more than one program at a time(this counts the kernel as a program), or make sure the user doesn't have the power of a god over the entire computer. So away we go again, setting things up for the 3rd time now but getting real close to almost being at the starting line of making the OS work correctly.</p>
 		<p></p>
+		<h3 class="text_element_h">Part 3: Yay Graphics!!</h3>
+		<p></p>
+		<p class="text_element_p">So the kernel is loading and we can draw to the screen, normally that means we totally forget about the screen until we finish making a bunch of other stuff like memory managers and interrupt handlers (authors note, foreshadowing is a literary technique in which a storyteller gives an advance hint of what is to come later in the story), but thats less fun than making text render so we're doing that first.</p>
+		<p></p>
+		<p class="text_element_p">But to get text to be all texty and lettery, we need a font. Just use a TTF or something you say, but how can we use a TTF file when there is no filesystem yet? Why isn't there a filesystem yet, you ask with wonder in your eyes, well because thats a much later thing and also because filesystems rely on a bunch of stuff we haven't even thought about yet. So then a bitmap font, not resizable but we can encode it into an array and just use that for everything ever. How does one encode a bitmap font you ask, well its rather simple, you just convert every character you want to be able to display into a grid of black and white pixels. If you're smart and think ahead you'll use some multiple of 8 as the size of the grid, because then every single row can fit nicely into an integer variable and we can just store a series of numbers rather than the whole grid of 1s and 0s. I chose an 8x8 font, mostly cause its smaller and easier to make, and set it up like so:</p>
+		<p></p>
+		<xmp class="code">// super_cool_font.c
+
+uint8_t font[26][8] = {
+  { 0x0C, 0x1E, 0x33, 0x33, 0x3F, 0x33, 0x33, 0x00}, // A
+	// etc etc for the rest of the letters
+};</xmp>
+		<p></p>
+		<p class="text_element_p">Now that just looks like magic numbers, but if you unwrap each one you get this:</p>
+		<p></p>
+		<img src="images/letter_a_bitmap.png " alt="Letter A on a pixel grid">		<p class="text_element_p">If we just do that for the rest of the letters of the alphabet, plus a couple more symbols like ! so I can truly show my excitement, a font is born! Next comes actually drawing the font to the screen, since we dont have any rendering libraries (or a standard c library) we'll have to DIY some kind of system. The easiest solution is just take in a string, go through it character by character, and then just copy the 8x8 set of pixels corresponding to the character. So away we go implementing that:</p>
+		<p></p>
+		<xmp class="code">// doesn't really matter where but somewhere.c
+
+1.   void print_to_screen(char* str, int x, int y){
+2.     while(*str){
+3.       if(*str >= 'a'){
+4.         *str -= 32;
+5.       }
+6.       int index = *str - 'A'
+7.  
+8.       for(int row = 0; row < 8; row++){
+9.         for(int col = 0; col < 8; col++){
+10.          if((font[index][row] >> col) & 1){
+11.            draw_pixel(x+col, y+row, WHITE);
+12.          }
+13.          else{
+14.            draw_pixel(x+col, y+row, BLACK);
+15.          }
+16.        }
+17.      }
+18. 
+19.      x += 10;
+20. 
+21.      str++;
+22.    }
+23.  }</xmp>
+		<p></p>
+		<p class="text_element_p">You may be wondering why I didn't take in a length for the string, or why the while loop just loops while the string ... is? Well C uses this lovely thing called null-terminated strings, which means at the end of every string constant you create there exists a single extra byte thats set to 0. By using this extra byte, C is able to know the length of strings by just looping until you hit the 0, which is how our while loop works. It checks the current value of the string pointer: if its 0 then it'll stop, else it'll go through and print out the character to the screen by drawing it pixel by pixel (I'll explain that in a moment). The reason I don't have some kind of for loop is because of another quirk when using strings in C, since a string isn't really a thing. Theres no datatype string thats built into the C language, instead we just use an array of chars. Because of this when passing a string literal to a function, you take in a pointer to a character (the code assumes it's a valid string and not some random memory address). The increment operation done on line 21 shifts the pointer over 1, for example:</p>
+		<p></p>
+		<xmp class="code">| H | E | L | L | O | ! | 0 | <-- String in memory
+  ^ str
+
+str++
+
+| H | E | L | L | O | ! | 0 | <-- String in memory
+      ^ str
+
+(etc etc)
+
+| H | E | L | L | O | ! | 0 | <-- String in memory
+                          ^ str</xmp>
+		<p></p>
+		<p class="text_element_p">Eventually str gets shifted to the null byte at the end of the string and it'll stop the while loop, allowing us to not have to use any extra variables to keep track of where we are in the string.</p>
+		<p></p>
+		<p class="text_element_p">The pixel drawing looks a big complicated, buts it's rather simple once you understand it. We establish one loop that goes through the 'rows' of the image (each 'row' being an element in the font array), then create another that goes through the 'columns' of the image (each 'column' being a single bit in the byte). The >> operator just shifts a number to the right a certain amount of bits like so, and by performing a bitwise AND on the number with 1, we can check if the bottom bit is set: if so we can draw a pixel there, else fill the area with our background color.</p>
+		<p></p>
+		<xmp class="code">| 1 | 0 | 1 | 1 | <-- number
+| 0 | 1 | 0 | 1 | <-- number >> 1
+
+number & 1 is the same as checking if both corresponding bits are 1:
+
+| 0 | 1 | 0 | 1 | <-- number
+| 0 | 0 | 0 | 1 | <-- 1
+-----------------
+| 0 | 0 | 0 | 1 | <-- 1 (also known as TRUE)</xmp>
+		<p></p>
+		<p class="text_element_p">Notice how that final 1 got shifted out of the number, and a fresh 0 got shifted into the top. By doing this shifting we can check each bit of the byte, and use that to determine whether or not to draw a pixel. While this method does let us save on storage space, the font gets reduced to 2 colors, forcing us to add some kind of extra code if we want to change the colors of the text. But thats a future problem, for now we're able to get text from our code onto the screen, isn't that exciting!</p>
+		<p></p>
+		<h3 class="text_element_h">Part 4: Memory Allocation</h3>
+		<p></p>
+		<p class="text_element_p">We have a screen, we have a kernel that loads and lets us write text to the screen, and now we must wrestle a dragon and tackle memory management. It sounds easy on paper, we have all of RAM at our disposal, just take a chunk and get to work right? If only it was that easy; since we're loading all sorts of data into the kernel, such as the GDT or eventually interrupt data, that has to go somewhere and it could be anywhere in RAM for all we know. Luckily we do not have to try and figure out what areas of memory are safe for us to mangle, as our favourite bootloader Limine handles that for us. Earlier we had made a request to capture the framebuffer, and now we must make another to get access to the memory map that Limine provides us with:</p>
+		<p></p>
+		<xmp class="code">// memory.c
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_memmap_request memmap_request = {
+	.id = LIMINE_MEMMAP_REQUEST,
+	.revision = 0
+};</xmp>
+		<p></p>
+		<p class="text_element_p">The process is about the same as getting the framebuffer, we create a request that has the memory map request id and then when initialising memory we check if the request was succesful. If it was, we can now just loop through every entry in the memory map, and check if its been marked by Limine as usable, or if its being utilized by something that we don't want to mess with. To make the process easier, I just stored a pointer to every usable section of memory in an array, so I don't have to loop through the entries every single time. But now comes the big decision, how do we differentiate between usable (also reffered to as 'free') data, and data thats in use. I can't just assume as sections of data that's full of zeroes is free since sometimes a we might want to set data to zeroes and then later change it. Some people use magic numbers or just 'free' and 'used' labels, but I decided on a header system. Whenever the kernel tries to allocate a block of memory, it starts at the beginning of the first usable entry in the memory map. It then checks the header, split up into 9 bytes. The first byte tells us 3 things, whether or not the header represents free or used data, if the data the header represents is all in one line or split up across multiple data segments, and how long the actual header is. But you just told us the header was 9 bytes, you cry, and I may have bent the truth a little. But for now lets assume the header is 9 bytes, and that data is always in one segment, not split up. The next 8 bytes (8 bytes is 64 bits, and we're using a 64 bit system ... I wonder if those two have any correlation) represent the memory address for the byte after the end of the data. All in all it looks something like this:</p>
+		<p></p>
+		<xmp class="code"> lets assume we start at memory address 0x0000000000000000
+
+Byte 1:
+
+| 0 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 
+{--- header size (9) ---}     ^ is the memory free or used
+
+Bytes 2-9: 0x000000000000000C (12)</xmp>
+		<p></p>
+		<p class="text_element_p">Thats the header for 'Hello World', which is 11 bytes long, plus that null byte we put at the end of strings to mark where the string ends, which makes 12 bytes total. Since we start at index 0 and not index 1, the header points to index 12 as the point after all of the data contained by this header. But we can't just give the kernel the header, cause then we'll have to manually skip ahead through the header every time and that'll get really annoying, so whenever the kernel tries to allocate memory we'll return the address of the start of the data (for the 'Hello World' example this would be the address where the 'H' is stored). The code for this is weirdly long and complicated, but that might've just been me. I'm not going to explain it all for sake of time but its vaguely commented:</p>
+		<p></p>
+		<xmp class="code">// memory.c
+
+void* malloc(size_t size){
+  size = align(size);
+
+  // find the next free section of memory
+  for(size_t i = 0; i < usable_entries.count; i++){
+    // j will be moved by the headers
+    for(size_t j = 0; j < usable_entries.arr[0]->length;){
+      uint8_t* ptr = (uint8_t*)(RAM_START + usable_entries.arr[0]->base + j);
+      uint64_t len = 0;
+      for(int k = 0; k < 8; k++){
+        len |= (*(ptr+k+1)) << (k*8);
+      }
+      
+      if((*ptr) & 0x1 && len >= size){ // if space is free and large enough
+        *ptr &= ~(1 << 0); // mark the space as not free
+        for(int k = 0; k < 8; k++){
+          *(ptr+k+1) = (size >> (k*8)) & 0xFF;
+        }
+        memset(ptr+9, 0, size);
+        *(ptr+9+size) = 0b00100111;
+        len -= size;
+        for(int k = 0; k < 8; k++){
+          *(ptr+9+size+k+1) = (len >> (k*8)) & 0xFF;
+        }
+        return ptr+9;
+      }
+      else{
+        j += 9+len; // adding 9 skips the header, then len skips the data
+      }
+    }
+  }
+
+  return NULL;
+}</xmp>
+		<p></p>
+		<p class="text_element_p">The only thing I will note is that NULL (which is the same as a pointer to 0x0) gets returned if no memory could be allocated, since that makes error handling easier as no one has to deal with strange corrupted memory, and no one has to try to figure out if the memory they got is actually valid and usable.</p>
+		<p></p>
+		<h3 class="text_element_h">Part 5: Onwards and Upwa- wait why are you packing up</h3>
+		<p></p>
+		<p class="text_element_p">This is a super neat project, baby's first operating system taught me all sorts of things about how my computer works under the hood. The journey was shortlived, and really quite interesting, but moving forward is more effort than I believe it to be worth to me at the moment. While getting a fully functioning operating system, with a user mode and program management and all that, would be cool, the road from here gets more and more complicated. I don't have the knowledge and programming skills to understand it all just yet, but when I'll return when I do and BSOS (baby's second operating system) will be a thing to be reckoned with. Or at least, a thing to be vaguely poked until it starts crying like an actual baby.</p>
+		<p></p>
 		<hr class="hori-dash">
 		<h3 class="text_element_h">Sources!!</h3>
 		<p></p>
@@ -209,7 +349,7 @@ void kernel_main(void){
 		<p></p>
 		<a class="text_element_p" href="https://wiki.osdev.org/Creating_an_Operating_System">7. OSDev Wiki Roadmap</a>
 		<p></p>
-		<a class="text_element_p" href="https://operating-system-in-1000-lines.vercel.app/en/">8. Another helpful guide</a>
+		<a class="text_element_p" href="https://operating-system-in-1000-lines.vercel.app/en/">8. Another helpful guide (although it is RISC-V)</a>
 		<p></p>
 		<a class="text_element_p" href="https://wiki.osdev.org/8259_PIC">9. OSDev Wiki PIC</a>
 		<p></p>
