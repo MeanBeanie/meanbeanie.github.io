@@ -184,7 +184,7 @@ uint8_t font[26][8] = {
 
 "Now that just looks like magic numbers, but if you unwrap each one you get this:"
 
-$images/letter_a_bitmap.png | Letter A on a pixel grid
+$formatting/images/letter_a_bitmap.png | Letter A on a pixel grid
 
 "If we just do that for the rest of the letters of the alphabet, plus a couple more symbols like ! so I can truly show my excitement, a font is born! Next comes actually drawing the font to the screen, since we dont have any rendering libraries (or a standard c library) we'll have to DIY some kind of system. The easiest solution is just take in a string, go through it character by character, and then just copy the 8x8 set of pixels corresponding to the character. So away we go implementing that:"
 

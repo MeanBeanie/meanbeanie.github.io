@@ -1,0 +1,78 @@
+[bl]
+# "$ cat ~/projects/bl" > {https://github.com/MeanBeanie/bl}
+
+"Programming langugaes are cool. I use one almost every day to make cool things, and yet somehow I feel like I've never taken the time to actually learn how they work. But studying is boring and in my opinon the only real way to learn something is to do it until it clicks, so away we go on another coding adventure to make a programming language"
+
+## "Vocab"
+
+"Real quickly before we get started, I wanted to drop this list of words I'm going to use and what they mean/do so that confusion can be avoided later on"
+
+"Token: Kinda like a word, except it has extra data identifiying what it means in our language attached to it"
+"Lexer: The thing that turns our text into smaller tokens"
+"Expression: A step up from a token, kinda like a sentence. Think 1+1 or print('Hello World')"
+"Parser: The thing that turns our tokens into expressions"
+"Interpreter: The thing that processes each expression, basically the thing that runs the code"
+
+## "Tokenizer? I barely know her"
+
+"To get started there are 2 rules you need to understand."
+"1. Words are made up of letters."
+"2. Words get seperated by not letters."
+"It sounds silly, because of course words are made of letters and how else could they be seperated if not by everything that isn't a letter. But that's truly all you need to remember to make a programming language."
+"The lexer starts out pretty simple: it takes in an array of every single character in the code file, then it goes through and follows those rules from earlier to split the characters into tokens. Let's start out simple with a lexer that turns text into either words or numbers"
+
+`1.  void lexer(char* buffer, size_t buflen){
+2.    char* start = buffer;
+3.    int len = 0;
+4.    
+5.    enum token_type current_type = TOK_NONE;
+6.  
+7.    for(size_t i = 0; i < buflen; i++){
+8.      if(current_type == TOK_NUMBER){
+9.        if( isdigit(buffer[i]) ){
+10.         len++;
+11.       }
+12.       else {
+13.         printf("%.*s", len, start);
+14.         current_type = TOK_NONE;
+15.       }
+16.     }
+17.     else if(current_type == TOK_WORD){
+18.       if( isalpha(buffer[i] ){
+19.         len++;
+20.       }
+21.       else {
+22.         printf("%.*s", len, start);
+23.         current_type = TOK_NONE;
+24.       }
+25.     }
+26. 
+27.     if(current_type == TOK_NONE){
+28.       if( isdigit(buffer[i]) ){
+29.         current_type = TOK_NUMBER;
+30.         start = buffer+i;
+31.         len = 1;
+32.       }
+33.       else if( isalpha(buffer[i]) ){
+34.         current_type = TOK_WORD;
+35.         start = buffer+i;
+36.         len = 1;
+37.       }
+38.     }
+39.   }
+40. }`
+
+"That looks like a lot of code for seperating numbers from words, but once you get a feel for how it works it's actually fairly simple."
+"The beginning bits (from lines 2 - 5), I'm just creating a few variables to help us keep track of where we are in the file. The start variable I created is simply a pointer to somewhere within the buffer, and I later shift it forward to match where the start of our current token is. The len variable is similar, tracking the length of the current token's string. Finally the current_type token uses the following custom enum, and keeps track of whether or not we're even in a token, noting which type if we are within one."
+
+`enum token_type {
+  TOK_NONE,
+  TOK_NUMBER,
+  TOK_WORD
+}`
+
+"After that I just looped through the entire buffer, using the C standard functions isdigit and isalpha to check whether or not the current character is a number (0-9) or a letter (a-z)."
+
+"The checks made on line 8 and line 17 are both to see if we're already in a token, since if we are we have to branch differently from if we aren't. Below is a flowchart describing the control path of the tokenization process"
+
+$formatting/images/tokenizer_flowchart.png | flowchart of tokenizer control path

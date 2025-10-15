@@ -3,13 +3,22 @@
 "home" > (index)
 "projects" > (projects)
 "github" > {https://github.com/MeanBeanie}
-"TODO! add more links" > (index)
 
 [index]
 # "$ whoami"
+"TODO add an image of me"
 "I'm a sixteen year old software developer. I've been programming since I was 9 years old and I've since fallen down the computer engineering rabbit hole, attempting every project I can think of and learning whatever I need to along the way."
 "This is the corner of the internet where I talk about my projects and the process of making them, highlighting the lows, highs, and everything in between. This site will mostly likely contain projects I think are interesting or educational enough that I want to make note of them, as well as any other neat or fun things I feel deserve a mention."
-"TODO!! add like a couple highlighted projects"
+"Notable projects of mine include"
+-dash-
+## "BFOS: Baby's First Operating System" > (bfos)
+"A project to help me understand how Operating Systems work and how they interface with computer hardware"
+-dash-
+## "Portfolio Generator" > (portfolio_generator)
+"The project that generates this site, uses a formatting file to generate the html for a site"
+-dash-
+## "Basic Langugae" > (bl)
+"A experiment in how programming languages are created, exploring how text is transformed into instructions for a computer"
 
 [projects]
 # "$ ls ~/projects"
@@ -20,7 +29,12 @@
 ## "Baby's First Operating System" > (bfos)
 "Operating systems are cool, why not figure out how to create one of my own?"
 -dash-
+## "BL: a basic programming language" > (bl)
+"I've used a programming language near daily for years, but how do they actually work?"
+-dash-
 
 .formatting/portgen.port
 
 .formatting/bfos.port
+
+.formatting/bl.port

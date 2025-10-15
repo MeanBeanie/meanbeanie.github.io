@@ -14,7 +14,6 @@
 		<a class="text_element_p" href="index.html">[home]</a>
 		<a class="text_element_p" href="projects.html">[projects]</a>
 		<a class="text_element_p" href="https://github.com/MeanBeanie">[github]</a>
-		<a class="text_element_p" href="index.html">[TODO! add more links]</a>
 		</nav>
 	</div>
 		<hr>
@@ -206,7 +205,7 @@ uint8_t font[26][8] = {
 		<p></p>
 		<p class="text_element_p">Now that just looks like magic numbers, but if you unwrap each one you get this:</p>
 		<p></p>
-		<img src="images/letter_a_bitmap.png " alt="Letter A on a pixel grid">		<p class="text_element_p">If we just do that for the rest of the letters of the alphabet, plus a couple more symbols like ! so I can truly show my excitement, a font is born! Next comes actually drawing the font to the screen, since we dont have any rendering libraries (or a standard c library) we'll have to DIY some kind of system. The easiest solution is just take in a string, go through it character by character, and then just copy the 8x8 set of pixels corresponding to the character. So away we go implementing that:</p>
+		<img src="formatting/images/letter_a_bitmap.png " alt="Letter A on a pixel grid">		<p class="text_element_p">If we just do that for the rest of the letters of the alphabet, plus a couple more symbols like ! so I can truly show my excitement, a font is born! Next comes actually drawing the font to the screen, since we dont have any rendering libraries (or a standard c library) we'll have to DIY some kind of system. The easiest solution is just take in a string, go through it character by character, and then just copy the 8x8 set of pixels corresponding to the character. So away we go implementing that:</p>
 		<p></p>
 		<xmp class="code">// doesn't really matter where but somewhere.c
 
