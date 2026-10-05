@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Ishaan Mehta</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Overpass&display=swap');
+    </style>
+    <script>
+      function scroll_to_element(id)
+      {
+        const el = document.getElementById(id);
+        el.scrollIntoView(true)
+      }
+    </script>
+  </head>
+
+  <body>
+    <ul class="navbar">
+      <li><button class="navbar_element" onclick="scroll_to_element('title')">top</button></li>
+      <li><button class="navbar_element" onclick="scroll_to_element('work')">experience</button></li>
+      <li><button class="navbar_element" onclick="scroll_to_element('projects')">projects</button></li>
+    </ul>
+    <h1 id="title" class="title">Hi, I'm Ishaan!</h1>
+    <ul style="display: flex">
+    <li style="margin-right: 2rem; display: inline"> <img src="icons/email.svg" width="24rem" alt="envelope icon" /> <a class="link" href="mailto:ishaan@pmehta.com">ishaan@pmehta.com</a> </p>
+    <li style="margin-right: 2rem; display: inline"> <img src="icons/github.svg" width="24rem" alt="github icon" /> <a class="link" target="_blank" href="https://github.com/MeanBeanie">github</a> </p>
+    <li style="margin-right: 2rem; display: inline"> <img src="icons/codeberg.svg" width="24rem" alt="codeberg icon" /> <a class="link" target="_blank" href="https://codeberg.com/MeanBeanie">codeberg</a> </p>
+    </ul>
+    <p class="content">
+    I'm a full-time student at Oregon State University, majoring in <span class="hl">Electrical and
+    Computer Engineering</span>, and a part-time software developer. I've worked with
+    <span class="hl">C, C++ and Python</span> and have some experience in web development
+    (<span class="hl">HTML, CSS, and Javascript</span>). Outside of programming, I spend
+    my free time breathing new life into technology that would have become e-waste.
+    </p>
+    <h2 id="work" class="section">experience</h2>
+    <div style="border-left: 0.3rem solid #bf616a; padding-left: 0.5rem;" class="work_section">
+      <h2>internship @ <a class="link" target="_blank" href="https://persimmons.ai">persimmons</a></h2>
+      <p>Summer 2026</p>
+      <ul>
+        <li>Helped set up data center infrastructure</li>
+        <li>Set up and configured cluster computing using <a class="link" target="_blank" href="https://slurm.schedmd.com/overview.html">Slurm</a></li>
+        <li>Created web-based frontend for <a class="link" target="_blank" href="https://slurm.schedmd.com/overview.html">Slurm</a> to track running processes</li>
+      </ul>
+    </div>
+    <div style="border-left: 0.3rem solid #d08770; padding-left: 0.5rem;" class="work_section">
+      <h2>internship @ <a class="link" target="_blank" href="https://thelios.ai">thelios</a></h2>
+      <p>Summer 2024</p>
+      <ul>
+        <li>Assisted with the training of a AI model that analyzes volleyball matches</li>
+        <li>Created the training data for an AI model that analyzes football games</li>
+      </ul>
+    </div>
+    <div style="border-left: 0.3rem solid #a3be8c; padding-left: 0.5rem;" class="work_section">
+      <h2>frc #9634: zero tolerance</h2>
+      <p>Winter 2024</p>
+      <ul>
+        <li>Wrote all the computer vision needed the autonomous section of competition</li>
+        <li>Assisted in the building and wiring of the robot</li>
+      </ul>
+    </div>
+    <div style="border-left: 0.3rem solid #ebcb8b; padding-left: 0.5rem;" class="work_section">
+      <h2>frc #299: <a class="link" target="_blank" href="https://www.valkyrierobotics.com/">valkyrie robotics</a></h2>
+      <p>Summer 2022 - Summer 2023</p>
+      <ul>
+        <li>Wrote documentation on legacy code and poorly documented existing code</li>
+        <li>Worked on computer vision responsible for the autonomous section of competitions</li>
+        <li>
+        Wrote tests for superstructure collision, which kept track of the physical locations of the
+        robot's arm and shooting mechanism to avoid causing any internal damage.
+        </li>
+        <li>Assisted in the wiring of the robot</li>
+      </ul>
+    </div>
+    <h2 id="projects" class="section">projects</h2>
+    <p>
+    Below is a handful of the things I've written, check out the rest of my projects on
+    <a class="link" target="_blank" href="https://github.com/MeanBeanie">Github</a> and
+    <a class="link" target="_blank" href="https://codeberg.org/MeanBeanie">Codeberg</a>
+    </p>
+    <div style="border-left: 0.3rem solid #bf616a; padding-left: 0.5rem;" class="project_section">
+      <h2><a class="link" target="_blank" href="https://codeberg.org/MeanBeanie/tea">tea</a></h2>
+      <a class="license" target="_blank" href="https://www.apache.org/licenses/LICENSE-2.0.html">Apache License v2.0</a>
+      <p>A compiler for a statically typed programming language that generated x86_64 assembly</p>
+      <ul>
+        <li>Written in <span class="hl">C</span></li>
+        <li>
+          Used a mix between
+          <a class="link" target="_blank" href="https://en.wikipedia.org/wiki/Recursive_descent_parser">Recursive Descent</a>
+          and
+          <a class="link" taget="_blank" href="https://en.wikipedia.org/wiki/Operator-precedence_parser#Pratt_parsing">Pratt Parsing</a>
+        </li>
+        <li>Can integrate with C libraries (such as <a class="link" target="_blank" href="https://raylib.com">raylib</a>)</li>
+        <li>Able to make system calls to the Linux kernel</li>
+        <li>Supports namespacing and file inclusion, can automatically search through the current directory and subdirectories for included files</li>
+      </ul>
+    </div>
+    <div style="border-left: 0.3rem solid #ebcb8b; padding-left: 0.5rem;" class="project_section">
+      <h2><a class="link" target="_blank" href="https://codeberg.org/MeanBeanie/fui.h">fui.h</a></h2>
+      <a class="license" target="_blank" href="https://opensource.org/license/BSD-3-clause">BSD 3-Clause</a>
+      <p>a single-header graphics library that renders text in cells like a terminal but also supports direct pixel manipulation, like a TUI crossed with a GUI</p>
+      <ul>
+        <li>Written in <span class="hl">C</span></li>
+        <li>Ncurses-like printing functions</li>
+        <li>Allows the choice between multiple graphics frontends (SDL, Raylib, X11)</li>
+        <li>Supports rendering of custom emoji-like glyphs</li>
+      </ul>
+      <img src="screenshots/fui.png" width="50%" alt="example of what fui looks like"/>
+    </div>
+    <div style="border-left: 0.3rem solid #d08770; padding-left: 0.5rem;" class="project_section">
+      <h2><a class="link" target="_blank" href="https://codeberg.org/MeanBeanie/nws_fetcher">nws fetcher</a></h2>
+      <p>A script to fetch the National Weather Service's hourly forecast prediction</p>
+      <ul>
+        <li>Written in <span class="hl">Python</span></li>
+        <li>Used the <a class="link" target="_blank" href="https://www.weather.gov/documentation/services-web-api">National Weather Service's API</a></li>
+      </ul>
+    </div>
+    <div style="border-left: 0.3rem solid #a3be8c; padding-left: 0.5rem;" class="project_section">
+      <h2><a class="link" target="_blank" href="https://codeberg.org/MeanBeanie/math_svg">math to svg</a></h2>
+      <a class="license" target="_blank" href="https://unlicense.org/">Unlicense</a>
+      <p>A script that converts a spec file describing the image to an svg</p>
+      <ul>
+        <li>Written in <span class="hl">Lua</span></li>
+        <li>Calculates the derivative of inputted functions to accurately plot them</li>
+        <li>Written to optimize my workflow when it comes to taking notes on my computer in my math classes</li>
+      </ul>
+      <img src="screenshots/math.svg" alt="example of a generated svg"/>
+    </div>
+  </body>
+</html>
